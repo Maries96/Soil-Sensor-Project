@@ -1,73 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plotly.js with InfluxDB</title>
-  <script src="https://cdn.plot.ly/plotly-5.23.0.min.js"></script>
-</head>
-<body>
-  <div id="soil-visualization"></div>
-
-  <script>
-    const fetchData = async () => {
-      try {
-        // InfluxDB connection details
-        const url = "http://localhost:8086/"; 
-        const token = "ZD2gXaSb-RlaCZf63ho98cYJvoo9By2XMQXK4xw29aSKni89HUt0H4_VnGgpti7kHpbJxGYuQ8nb2lJiheTVpA==";
-        const org = "Soil Sensor Project"; 
-        const query = `
-          from(bucket: "Sensor_Info")
-            |> range(start: -1h)
-            |> filter(fn: (r) => r._measurement == "Sensors")
-        `;
-
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            org,
-            q: query,
-          }),
-        });
-
-        const data = await response.json();
-
-        // Process and format data for Plotly
-        const x = [];
-        const y = [];
-        for (const record of data.results[0].series) {
-          x.push(record.values[0][0]); // Assuming time is the first value
-          y.push(record.values[1][1]); // Assuming value is the second value
-        }
-
-        const trace = {
-          x: x,
-          y: y,
-          mode: "lines", // Line chart
-          name: "Sensor 1",
-        };
-
-        const layout = {
-          title: "Soil Sensor Data (Past Hour)",
-          xaxis: {
-            title: "Time",
-          },
-          yaxis: {
-            title: "Value",
-          },
-        };
-
-        Plotly.newPlot("soil-visualization", [trace], layout);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData(); // Call the function to fetch and plot data
-  </script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Soil Sensor Project</title>
+  </head>
+  <body>
+    <header>
+      <h2 class="title">Soil Sensor Project</h2>
+    </header>
+    <main>
+      <h2 class="graphs-title">My Time Series Graphs</h2>
+      <div id="graphs-container">
+        <!-- Append graph here -->
+      </div>
+    </main>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="scripts.js"></script>
+  </body>
 </html>
