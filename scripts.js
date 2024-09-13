@@ -1,44 +1,58 @@
-const fetchData = async () => {
-  let traceData;
-
-  const plotly = (data) => {
-    const layout = {
-      title: 'Soil Temperature and Watermark',
-    };
-    return Plotly.newPlot('graphs-container', [data], layout);
-  };
-
-  const getData = async (url) => {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      // Combine filtering and data preparation
-      const filteredData = data.filter(row => row._field === 'Temperature1' || row._field === 'Adjwatermark1')
-        .map(row => ({
-          _time: row._time,
-          y: row._value,
-        }));
-
-      return {
-        type: 'scatter',
-        mode: 'lines',
-        name: 'Temperature and Adjwatermark',
-        x: filteredData.map(row => row._time),
-        y: filteredData.map(row => row.y), // Assuming all filtered data has a value
-        line: { color: '#17BECF' },
-      };
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      // Consider displaying a user-friendly error message here
+$(document).ready(function() {
+    $.getJSON('/', function(csvData) {
+        console.log(csvData);  // Check if the correct data is being received
+        const plotData = generatePlotData(csvData);
+        Plotly.newPlot('soil-sensor-visualization', plotData.data, plotData.layout);
+      });      
+  });
+  
+  function generatePlotData(csvData) {
+    const traces = [];
+  
+    // Group data by sensor name and field (e.g., SensorA:Adjwatermark1, SensorB:Temperature1)
+    const groupedData = csvData.reduce((acc, row) => {
+        const key = `${row.name}:${row._field}`;  // Grouping by name and field
+        if (!acc[key]) {
+            acc[key] = {
+                x: [],
+                y: [],
+                name: `${row.name} (${row._field})`  // Show name and field in the plot legend
+            };
+        }
+        acc[key].x.push(row._time);
+        acc[key].y.push(row._value);
+        return acc;
+    }, {});
+  
+    // Prepare traces for each group of data (e.g., SensorA:Adjwatermark1, SensorB:Temperature1)
+    for (const key in groupedData) {
+        const { x, y, name } = groupedData[key];
+        traces.push({
+            x,
+            y,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name,  // Show both sensor name and field type in the legend
+        });
     }
-  };
-
-  try {
-    traceData = await getData('/api/sensor_data');
-    plotly(traceData);
-  } catch (error) {
-    console.error('Error creating plot:', error);
-    // Consider displaying a user-friendly error message here
+  
+    // Layout of the Plotly graph
+    const layout = {
+        title: 'Sensor Data Visualization',
+        xaxis: {
+          title: 'Time',
+          automargin: true,
+          type: 'date'  // If you want the x-axis to handle dates specifically
+        },
+        yaxis: {
+          title: 'Value',
+          automargin: true
+        },
+        paper_bgcolor: 'white',
+        plot_bgcolor: 'white'
+      };
+      
+  
+    return { data: traces, layout: layout };
   }
-};
+  

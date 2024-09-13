@@ -1,45 +1,17 @@
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+#soil-sensor-visualization {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  color: rgb(25, 27, 31);
+  background-color: white; /* Sets the background color of the plot container */
 }
 
-body {
-  width: 100%;
-  height: 100%;
-  background: #f8f8f8;
-  color: #666;
-  font-family: sans-serif;
+.plotly-hoverlabel {
+  background-color: white; /* Sets the background color for hover labels */
 }
 
-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 20vh;
-  background: #666;
-  color: #f8f8f8;
+.plotly-xaxis {
+  /* X-axis styling should be handled via Plotly layout configuration */
 }
 
-.title {
-  font-size: 60px;
-}
-
-main {
-  height: 80vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.graphs-title {
-  margin: 30px auto;
-}
-
-#graphs-container {
-  height: 60%;
-  width: 80%;
+.plotly-yaxis {
+  /* Y-axis styling should be handled via Plotly layout configuration */
 }
